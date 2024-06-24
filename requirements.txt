@@ -1,2 +1,5 @@
-fastapi
-uvicorn[standard]
+flask
+boto3
+sqlalchemy
+flask-sqlalchemy
+psycopg2
