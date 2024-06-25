@@ -1,10 +1,12 @@
 import os
-from flask import Flask, request, render_template, redirect, url_for
+from flask import Flask, request, render_template, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 import boto3
 from config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
 
 app = Flask(__name__)
+CORS(app)
 
 
 #configure AWS S3 bucket
@@ -26,6 +28,11 @@ db = SQLAlchemy(app)
 
 @app.route("/")
 def index():
+    return render_template('index.html')
+
+# endpoint to upload video file to AWS
+@app.route("/upload")
+def uploadVideo():
     return render_template('index.html')
 
 
