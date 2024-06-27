@@ -1,1 +1,6 @@
 /__pycache__
+
+# virtual env
+/.venv
+Pipfile
+Pipfile.*
