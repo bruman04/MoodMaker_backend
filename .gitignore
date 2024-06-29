@@ -4,3 +4,6 @@
 /.venv
 Pipfile
 Pipfile.*
+
+#video files
+*.mp4
