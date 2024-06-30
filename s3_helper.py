@@ -1,10 +1,23 @@
 import boto3
+from botocore.exceptions import NoCredentialsError
+import requests
+import mimetypes
 
 
-def upload(file_name, bucket, object_name):
+def upload(file_obj, bucket, file_name):
     s3_client = boto3.client('s3')
-    response = s3_client.upload_file(file_name, bucket, object_name)
-    return response
+    try:
+        s3_client.upload_fileobj(file_obj, bucket, file_name)
+        print("Upload Successful")
+        return True
+    
+    except FileNotFoundError:
+        print("The file was not found")
+        return False
+    
+    except NoCredentialsError:
+        print("Credentials not available")
+        return False
 
 
 def download(file_name, bucket):

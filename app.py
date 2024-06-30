@@ -42,8 +42,8 @@ def upload_video():
             return jsonify(response_obj), 400
         
         f = request.files['file']
-        f.save(os.path.join(UPLOAD_FOLDER, f.filename))
-        upload(f"upload_files/{f.filename}", S3_BUCKET, f.filename)
+        upload(f, S3_BUCKET, f.filename)
+
         response_obj['message'] = "Video Uploaded"
 
     return jsonify(response_obj)
