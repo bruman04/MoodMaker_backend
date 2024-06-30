@@ -4,7 +4,7 @@ rawAudio = AudioFileClip("testVideoAudio/testAud.mp3")
 rawVideo = VideoFileClip("testVideoAudio/testVid.mp4")
 
 rawAudio = rawAudio.volumex(0.5)
-rawAudio = rawAudio.loop(duration=rawVideo.duration)
+rawAudio = rawAudio.audio_loop(duration=rawVideo.duration)
 
 originalAudio = rawVideo.audio
 
