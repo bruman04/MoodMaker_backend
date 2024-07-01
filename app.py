@@ -1,10 +1,14 @@
 import os
-from flask import Flask, request, render_template, redirect, url_for
+from flask import Flask, request, render_template, redirect, url_for, jsonify, Response
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 import boto3
+from s3_helper import upload
 from config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
 
 app = Flask(__name__)
+UPLOAD_FOLDER = "upload_files"
+CORS(app, resources={r'/*': {'origins' : '*'}})
 
 
 #configure AWS S3 bucket
@@ -24,10 +28,26 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
 
 db = SQLAlchemy(app)
 
-@app.route("/")
+@app.route("/home")
 def index():
-    return render_template('index.html')
+    return render_template("index.html")
 
+# endpoint to upload video file to AWS
+@app.route("/upload", methods=['POST'])
+def upload_video():
+    response_obj = {'status' : 'success'}
+    if request.method == "POST":
+        if 'file' not in request.files:
+            response_obj['status'] = 'failure'
+            return jsonify(response_obj), 400
+        
+        f = request.files['file']
+        upload(f, S3_BUCKET, f.filename)
+
+        response_obj['message'] = "Video Uploaded"
+
+    return jsonify(response_obj)
+    
 
 if __name__ == "__main__":
     app.run(debug=True)
