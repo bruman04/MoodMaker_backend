@@ -4,9 +4,13 @@
 /.venv
 Pipfile
 Pipfile.*
+/moodmaker_venv
 
 #video files
 *.mp4
 
 #api keys
 /.env
+
+#test
+/testVideoAudio
