@@ -8,4 +8,9 @@ Pipfile.*
 
 #video files
 *.mp4
+
+#api keys
+/.env
+
+#test
 /testVideoAudio

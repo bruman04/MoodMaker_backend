@@ -3,7 +3,8 @@ from flask import Flask, request, render_template, redirect, url_for, jsonify, R
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import boto3
-from s3_helper import upload
+from s3_helper import upload, download
+from chatgpt_helper import get_vid_desc
 from config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
 
 app = Flask(__name__)
@@ -35,19 +36,34 @@ def index():
 # endpoint to upload video file to AWS
 @app.route("/upload", methods=['POST'])
 def upload_video():
-    response_obj = {'status' : 'success'}
     if request.method == "POST":
         if 'file' not in request.files:
-            response_obj['status'] = 'failure'
-            return jsonify(response_obj), 400
+            return jsonify({'status':'failure'}), 400
         
         f = request.files['file']
         upload(f, S3_BUCKET, f.filename)
 
-        response_obj['message'] = "Video Uploaded"
 
-    return jsonify(response_obj)
-    
+    return jsonify({'status':'success'})
+
+@app.route("/description", methods=["GET", "POST"])
+def video_desc():
+    # get video from s3 
+
+    # plug video into function below
+    gpt_desc = get_vid_desc()
+    return jsonify({'status' : 'sucess'}, {'prompt' : gpt_desc})
+
+# download completed file from s3
+@app.route("/download/<filename>", methods=['GET'])
+def get_video(filename):
+    url = download(S3_BUCKET, filename)
+    print("URL: ",url)
+    if url:
+        return jsonify({'status': 'success', 'url': url})
+    else:
+        return jsonify({'status': 'failure', 'message': 'Could not generate URL'}), 500
+
 
 if __name__ == "__main__":
     app.run(debug=True)
