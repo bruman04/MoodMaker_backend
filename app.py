@@ -46,18 +46,19 @@ def upload_video():
 
     return jsonify({'status':'success'})
 
-# @app.route("/description", methods=["GET", "POST"])
-# def video_desc():
-#     # get video from s3 
+@app.route("/description", methods=["GET", "POST"])
+def video_desc():
+    # get video from s3 
 
-#     # plug video into function below
-#     gpt_desc = get_vid_desc()
-#     return jsonify()
+    # plug video into function below
+    gpt_desc = get_vid_desc()
+    return jsonify({'status' : 'sucess'}, {'prompt' : gpt_desc})
 
 # download completed file from s3
 @app.route("/download/<filename>", methods=['GET'])
 def get_video(filename):
     url = download(S3_BUCKET, filename)
+    print("URL: ",url)
     if url:
         return jsonify({'status': 'success', 'url': url})
     else:
