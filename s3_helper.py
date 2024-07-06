@@ -1,5 +1,5 @@
 import boto3
-from botocore.exceptions import NoCredentialsError
+from botocore.exceptions import NoCredentialsError, ClientError
 import requests
 import mimetypes
 
@@ -20,12 +20,27 @@ def upload(file_obj, bucket, file_name):
         return False
 
 
-def download(file_name, bucket):
-    s3 = boto3.resource('s3')
-    output = f"download_files/{file_name}"
-    s3.Bucket(bucket).download_file(file_name, output)
-    return output
+# def download(bucket_name, key):
+#     s3_client = boto3.client('s3')
+#     try:
+#         file_obj = s3_client.get_object(Bucket=bucket_name, Key=key)
+#         return file_obj
+#     except ClientError as e:
+#         print(e)
+#         return None
 
+def download(bucket_name, object_name, expiration=3600):
+    """Generate a presigned URL to share an S3 object"""
+    s3_client = boto3.client('s3')
+    try:
+        response = s3_client.generate_presigned_url('get_object',
+                                                    Params={'Bucket': bucket_name,
+                                                            'Key': object_name},
+                                                    ExpiresIn=expiration)
+    except ClientError as e:
+        print(e)
+        return None
+    return response
 
 def list_all_files(bucket):
     s3 = boto3.client('s3')
