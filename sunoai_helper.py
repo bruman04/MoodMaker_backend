@@ -2,7 +2,7 @@ import time
 import requests
 
 # replace your vercel domain
-base_url = 'https://local-suno-api.vercel.app'
+base_url = 'https://remote-suno-ai-bd09b2fad4de.herokuapp.com'
 
 
 def custom_generate_audio(payload):
