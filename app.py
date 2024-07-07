@@ -15,14 +15,14 @@ import io
 app = Flask(__name__)
 app.secret_key =  os.getenv("SESSION_SECRET_KEY")
 UPLOAD_FOLDER = "upload_files"
-CORS(app, resources={r'/*': {"origins": "https://moodmaker-app-db41d8cd5ed4.herokuapp.com"}})
+CORS(app, resources={r'/*': {"origins": '*'}})
 
 #configure AWS S3 bucket
 S3_BUCKET = 'moodmaker-media'
 S3_REGION = 'ap-southeast-2'
 S3_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY_ID')
 S3_SECRET_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-TEMP_DIR = "./temp"
+TEMP_DIR = "./tmp"
 
 s3 = boto3.client('s3',
                   region_name=S3_REGION,
@@ -63,8 +63,8 @@ def get_video(filename):
         presigned_url = download(S3_BUCKET, processed_filename)
         if presigned_url:
             
-            os.remove(os.path.join("./temp", filename))
-            print("Delete temp files")
+            # os.remove(os.path.join("./temp", filename))
+            # print("Delete temp files")
             return jsonify({'status': 'success', 'url': presigned_url})
         else:
             return jsonify({'status': 'failure', 'message': 'Could not generate URL'}), 500
@@ -97,6 +97,7 @@ def get_overlay(filename):
 
 def download_from_s3(filename):
     s3 = boto3.client('s3')
+    print(filename)
     local_path = os.path.join(TEMP_DIR, filename)
     s3.download_file(S3_BUCKET, filename, local_path)
     return local_path
@@ -104,7 +105,6 @@ def download_from_s3(filename):
 def process_video(video_path):
     audio_url = get_music(video_path)
     temp_aud_path = get_audio_file(audio_url, TEMP_DIR)
-
 
     return temp_aud_path  
 
