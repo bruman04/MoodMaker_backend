@@ -31,6 +31,7 @@ def get_audio_bytes(audio_url):
             audio_bytes.write(chunk)
 
         audio_bytes.seek(0)  # Reset the stream position
+        print()
         return audio_bytes
 
     except Exception as e:
@@ -38,6 +39,7 @@ def get_audio_bytes(audio_url):
         return None
 
 def get_music(vid_path):
+    print("get music")
     
     data = generate_audio_by_prompt({
     "prompt": get_vid_desc(vid_path),
