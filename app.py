@@ -14,7 +14,7 @@ from config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
 app = Flask(__name__)
 app.secret_key =  os.getenv("SESSION_SECRET_KEY")
 UPLOAD_FOLDER = "upload_files"
-CORS(app, resources={r'/*': {'origins' : '*'}})
+CORS(app, resources={r'/*': {"origins": "https://moodmaker-app-db41d8cd5ed4.herokuapp.com"}})
 
 #configure AWS S3 bucket
 S3_BUCKET = 'moodmaker-media'
