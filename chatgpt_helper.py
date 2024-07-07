@@ -1,6 +1,6 @@
 from IPython.display import display, Image, Audio
 
-import cv2  # We're using OpenCV to read video, to install !pip install opencv-python
+import cv2  
 import base64
 import time
 from openai import OpenAI
@@ -8,7 +8,8 @@ from dotenv import load_dotenv
 import os
 import requests
 
-def get_vid_desc():
+
+def get_vid_desc(video):
     # Load environment variables from .env file
     load_dotenv()
 

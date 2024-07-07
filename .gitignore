@@ -14,3 +14,4 @@ Pipfile.*
 
 #test
 /testVideoAudio
+/test_data

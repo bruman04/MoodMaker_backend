@@ -19,16 +19,6 @@ def upload(file_obj, bucket, file_name):
         print("Credentials not available")
         return False
 
-
-# def download(bucket_name, key):
-#     s3_client = boto3.client('s3')
-#     try:
-#         file_obj = s3_client.get_object(Bucket=bucket_name, Key=key)
-#         return file_obj
-#     except ClientError as e:
-#         print(e)
-#         return None
-
 def download(bucket_name, object_name, expiration=3600):
     """Generate a presigned URL to share an S3 object"""
     s3_client = boto3.client('s3')
