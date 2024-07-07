@@ -26,7 +26,7 @@ def get_audio_file(audio_url, save_dir):
         response.raise_for_status()
 
         # Extract filename from URL or use a predefined name
-        filename = os.path.join(save_dir, "audio.mp3")
+        filename = f"{save_dir}/audio.mp3"
 
         # Write audio content to a local file
         with open(filename, 'wb') as f:

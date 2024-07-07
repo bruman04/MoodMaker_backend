@@ -98,8 +98,8 @@ def get_overlay(filename):
 def download_from_s3(filename):
     s3 = boto3.client('s3')
     print(filename)
-    local_path = os.path.join(TEMP_DIR, filename)
-    s3.download_file(S3_BUCKET, filename, local_path)
+    local_path = f"{TEMP_DIR}/{filename}"
+    s3.Bucket(S3_BUCKET).download_file(filename, local_path)
     return local_path
 
 def process_video(video_path):
