@@ -1,20 +1,38 @@
 import requests
+import io
 import tempfile
 from sunoai_helper import *
 from chatgpt_helper import get_vid_desc
 
-def get_audio_file(audio_url):
+# def get_audio_file(audio_url):
+#     try:
+#         response = requests.get(audio_url, stream=True)
+#         response.raise_for_status()
+
+#         # Store the audio file in a temporary file
+#         temp_audio_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
+#         for chunk in response.iter_content(chunk_size=8192):
+#             temp_audio_file.write(chunk)
+#         # temp_audio_file.close()
+
+#         return temp_audio_file.name
+#     except Exception as e:
+#         print(f"Error downloading audio file: {e}")
+#         return None
+
+def get_audio_bytes(audio_url):
     try:
         response = requests.get(audio_url, stream=True)
         response.raise_for_status()
 
-        # Store the audio file in a temporary file
-        temp_audio_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
+        # Read audio content into memory
+        audio_bytes = io.BytesIO()
         for chunk in response.iter_content(chunk_size=8192):
-            temp_audio_file.write(chunk)
-        # temp_audio_file.close()
+            audio_bytes.write(chunk)
 
-        return temp_audio_file.name
+        audio_bytes.seek(0)  # Reset the stream position
+        return audio_bytes
+
     except Exception as e:
         print(f"Error downloading audio file: {e}")
         return None

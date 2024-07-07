@@ -8,8 +8,9 @@ import boto3
 from s3_helper import upload, download
 from chatgpt_helper import get_vid_desc
 from overlay import audio_overlay
-from music_helper import get_music, get_audio_file
+from music_helper import get_music, get_audio_bytes
 from config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
+import io
 
 app = Flask(__name__)
 app.secret_key =  os.getenv("SESSION_SECRET_KEY")
@@ -72,31 +73,53 @@ def get_video(filename):
 @app.route("/overlay/<filename>", methods=['GET'])
 def get_overlay(filename):
     print("calling get overlay")
-
     try:
-        # Download video from S3 to a temporary file
-        print("creating temp file")
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as input_video_file:
-            s3.download_file(S3_BUCKET, filename, input_video_file.name)
-            input_video_path = input_video_file.name
-        
-        print("getting audio")
-        audio_url = get_music(input_video_path)
-        temp_audio_path = get_audio_file(audio_url)
+        # Download video from S3 to memory
+        video_bytes = io.BytesIO()
+        s3.download_fileobj(S3_BUCKET, filename, video_bytes)
+        video_bytes.seek(0)  # Reset the stream position
 
-        if not temp_audio_path:
+        # Get audio URL and download audio to memory
+        print("getting audio")
+        audio_url = get_music(video_bytes)
+        temp_audio_bytes = get_audio_bytes(audio_url)
+
+        if not temp_audio_bytes:
             raise Exception("Failed to download audio file")
-        
+
+        # Overlay audio onto video in memory
         print("overlay audio")
-        # Overlay audio onto video
-        processed_video_path = audio_overlay(input_video_path, temp_audio_path)
-        
+        processed_video_bytes = audio_overlay(video_bytes, temp_audio_bytes)
+
         # Upload processed video back to S3
         processed_filename = f"processed_{filename}"
-        
-        print("upload overlaid video to s3")
+        print("upload overlaid video to S3")
+        s3.upload_fileobj(processed_video_bytes, S3_BUCKET, processed_filename)
 
-        s3.upload_file(processed_video_path, S3_BUCKET, processed_filename)
+    # try:
+    #     # Download video from S3 to a temporary file
+    #     print("creating temp file")
+    #     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as input_video_file:
+    #         s3.download_file(S3_BUCKET, filename, input_video_file.name)
+    #         input_video_path = input_video_file.name
+        
+    #     print("getting audio")
+    #     audio_url = get_music(input_video_path)
+    #     temp_audio_path = get_audio_file(audio_url)
+
+    #     if not temp_audio_path:
+    #         raise Exception("Failed to download audio file")
+        
+    #     print("overlay audio")
+    #     # Overlay audio onto video
+    #     processed_video_path = audio_overlay(input_video_path, temp_audio_path)
+        
+    #     # Upload processed video back to S3
+    #     processed_filename = f"processed_{filename}"
+
+    #     print("upload overlaid video to s3")
+
+    #     s3.upload_file(processed_video_path, S3_BUCKET, processed_filename)
 
     except:
         return jsonify({'status' : 'failure', 'message' : 'Unable to save overlay to S3'}), 500
