@@ -1,5 +1,5 @@
 import requests
-import io
+import os
 import tempfile
 from sunoai_helper import *
 from chatgpt_helper import get_vid_desc
@@ -20,27 +20,30 @@ from chatgpt_helper import get_vid_desc
 #         print(f"Error downloading audio file: {e}")
 #         return None
 
-def get_audio_bytes(audio_url):
+def get_audio_file(audio_url, save_dir):
     try:
         response = requests.get(audio_url, stream=True)
         response.raise_for_status()
 
-        # Read audio content into memory
-        audio_bytes = io.BytesIO()
-        for chunk in response.iter_content(chunk_size=8192):
-            audio_bytes.write(chunk)
+        # Extract filename from URL or use a predefined name
+        filename = os.path.join(save_dir, "audio.mp3")
 
-        audio_bytes.seek(0)  # Reset the stream position
-        print()
-        return audio_bytes
+        # Write audio content to a local file
+        with open(filename, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+
+        return filename
 
     except Exception as e:
         print(f"Error downloading audio file: {e}")
         return None
 
+
 def get_music(vid_path):
     print("get music")
-    
+
     data = generate_audio_by_prompt({
     "prompt": get_vid_desc(vid_path),
     "make_instrumental": True,
