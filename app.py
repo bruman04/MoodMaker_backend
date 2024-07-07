@@ -16,7 +16,6 @@ app.secret_key =  os.getenv("SESSION_SECRET_KEY")
 UPLOAD_FOLDER = "upload_files"
 CORS(app, resources={r'/*': {'origins' : '*'}})
 
-
 #configure AWS S3 bucket
 S3_BUCKET = 'moodmaker-media'
 S3_REGION = 'ap-southeast-2'
@@ -33,6 +32,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
 
 db = SQLAlchemy(app)
+
+@app.route("/")
+def index():
+    return jsonify({'messsage' : 'index page'})
 
 # endpoint to upload video file to AWS
 @app.route("/upload", methods=['POST'])
