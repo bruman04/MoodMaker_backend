@@ -75,24 +75,27 @@ def get_overlay(filename):
 
     try:
         # Download video from S3 to a temporary file
+        print("creating temp file")
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as input_video_file:
             s3.download_file(S3_BUCKET, filename, input_video_file.name)
             input_video_path = input_video_file.name
         
+        print("getting audio")
         audio_url = get_music(input_video_path)
         temp_audio_path = get_audio_file(audio_url)
 
         if not temp_audio_path:
             raise Exception("Failed to download audio file")
         
-        print(temp_audio_path)
+        print("overlay audio")
         # Overlay audio onto video
         processed_video_path = audio_overlay(input_video_path, temp_audio_path)
         
         # Upload processed video back to S3
         processed_filename = f"processed_{filename}"
+        
+        print("upload overlaid video to s3")
 
-        print("Session data after storing", dict(session))  # Debug print
         s3.upload_file(processed_video_path, S3_BUCKET, processed_filename)
 
     except:
