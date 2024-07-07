@@ -1,7 +1,8 @@
 import time
 import requests
+from requests.exceptions import RequestException
 
-# replace your vercel domain
+# replace your domain
 base_url = 'https://remote-suno-ai-bd09b2fad4de.herokuapp.com'
 
 
@@ -10,7 +11,6 @@ def custom_generate_audio(payload):
     response = requests.post(url, json=payload, headers={'Content-Type': 'application/json'})
     return response.json()
 
-
 def extend_audio(payload):
     url = f"{base_url}/api/extend_audio"
     response = requests.post(url, json=payload, headers={'Content-Type': 'application/json'})
@@ -18,8 +18,17 @@ def extend_audio(payload):
 
 def generate_audio_by_prompt(payload):
     url = f"{base_url}/api/generate"
-    response = requests.post(url, json=payload, headers={'Content-Type': 'application/json'})
-    return response.json()
+
+    try:
+        response = requests.post(url, json=payload, headers={'Content-Type': 'application/json'})
+        response.raise_for_status()
+        return response.json()
+    except RequestException as e:
+        print(f"Request error for {url}: {e}")
+        return None
+    except Exception as e:
+        print(f"Error for {url}: {e}")
+        return None
 
 
 def get_audio_information(audio_ids):
