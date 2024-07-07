@@ -80,7 +80,7 @@ def get_overlay(filename):
     try:
         # Download video from S3 to local storage
         local_video_path = download_from_s3(filename)
-        print(local_video_path)
+        print("local path: ",local_video_path)
         
         # Process the video (e.g., overlay audio)
         processed_video_path = process_video(local_video_path)
