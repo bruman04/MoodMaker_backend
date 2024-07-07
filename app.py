@@ -8,7 +8,7 @@ import boto3
 from s3_helper import upload, download
 from chatgpt_helper import get_vid_desc
 from overlay import audio_overlay
-from create_music import get_music
+from music_helper import get_music, get_audio_file
 from config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
 
 app = Flask(__name__)
@@ -34,10 +34,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
 
 db = SQLAlchemy(app)
 
-# @app.route("/home")
-# def index():
-#     return render_template("index.html")
-
 # endpoint to upload video file to AWS
 @app.route("/upload", methods=['POST'])
 def upload_video():
@@ -51,43 +47,7 @@ def upload_video():
         upload(f, S3_BUCKET, f.filename)
 
     return jsonify({'status':'success'})
-
-# @app.route("/description", methods=["GET", "POST"])
-# def video_desc():
-#     # get video from s3 
-
-#     # plug video into function below
-#     gpt_desc = get_vid_desc()
-#     return jsonify({'status' : 'sucess'}, {'prompt' : gpt_desc})
-
-# download completed file from s3
-
-# @app.route("/download/<filename>", methods=['GET'])
-# def get_video(filename):
-
-#     url = download(S3_BUCKET, filename)
     
-#     print("URL: ",url)
-#     if url:
-#         return jsonify({'status': 'success', 'url': url})
-#     else:
-#         return jsonify({'status': 'failure', 'message': 'Could not generate URL'}), 500
-    
-@app.route("/get_music", methods=['GET'])
-def get_music():
-    url = "https://api.aimlapi.com/generate"
-    headers = {
-        "Authorization": "55f5117400a24197a14b9dcb18506e79",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "prompt": "Create a relaxing ambient music track",
-        "make_instrumental": True,
-        "wait_audio": True
-    }
-    response = requests.post(url, json=payload, headers=headers)
-    print(response.content)
-    return jsonify(response)
 
 @app.route("/download/<filename>", methods=['GET'])
 def get_video(filename):
@@ -109,14 +69,22 @@ def get_video(filename):
 @app.route("/overlay/<filename>", methods=['GET'])
 def get_overlay(filename):
     print("calling get overlay")
+
     try:
         # Download video from S3 to a temporary file
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as input_video_file:
             s3.download_file(S3_BUCKET, filename, input_video_file.name)
             input_video_path = input_video_file.name
         
-        # Process video using the temporary file
-        processed_video_path = audio_overlay(input_video_path, "./test_data/testAud.mp3")
+        audio_url = get_music(input_video_path)
+        temp_audio_path = get_audio_file(audio_url)
+
+        if not temp_audio_path:
+            raise Exception("Failed to download audio file")
+        
+        print(temp_audio_path)
+        # Overlay audio onto video
+        processed_video_path = audio_overlay(input_video_path, temp_audio_path)
         
         # Upload processed video back to S3
         processed_filename = f"processed_{filename}"
@@ -125,7 +93,7 @@ def get_overlay(filename):
         s3.upload_file(processed_video_path, S3_BUCKET, processed_filename)
 
     except:
-        return jsonify({'status' : 'failure', 'message' : 'Unable to saved overlay to S3'}), 500
+        return jsonify({'status' : 'failure', 'message' : 'Unable to save overlay to S3'}), 500
     
     return jsonify({'status' : 'success'})
 

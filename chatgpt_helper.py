@@ -19,7 +19,7 @@ def get_vid_desc(video):
     client = OpenAI(api_key=api_key)
 
     # change this
-    video = cv2.VideoCapture("test_data/test_vid.mp4")
+    video = cv2.VideoCapture(video)
 
     base64Frames = []
     while video.isOpened():
@@ -36,7 +36,7 @@ def get_vid_desc(video):
         {
             "role": "user",
             "content": [
-                "You are a musician that wants to generate music for frames from this video. Generate a prompt of the description of the atmosphere of the video under sixty words to instruct an AI music generator to create music.",
+                "You are a musician that wants to generate music for frames from this video. Generate a one sentence prompt of the description of the atmosphere of the video to instruct an AI music generator to create music.",
                 *map(lambda x: {"image": x, "resize": 768}, base64Frames[0::50]),
             ],
         },
@@ -44,10 +44,14 @@ def get_vid_desc(video):
     params = {
         "model": "gpt-4o",
         "messages": PROMPT_MESSAGES,
-        "max_tokens": 60,
+        "max_tokens": 30,
     }
 
     result = client.chat.completions.create(**params)
-    print(result.choices[0].message.content)
     description = result.choices[0].message.content
+    print(description)
+
     return (description)
+
+# video = "./test_data/test_vid.mp4"
+# get_vid_desc(video)
