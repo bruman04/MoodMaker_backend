@@ -77,36 +77,67 @@ def get_video(filename):
 @app.route("/overlay/<filename>", methods=['GET'])
 def get_overlay(filename):
     print("calling get overlay")
+
     try:
-        # Download video from S3 to local storage
-        local_video_path = download_from_s3(filename)
-        print("local path: ",local_video_path)
+        # Download video from S3 to a temporary file
+        print("creating temp file")
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as input_video_file:
+            s3.download_file(S3_BUCKET, filename, input_video_file.name)
+            input_video_path = input_video_file.name
         
-        # Process the video (e.g., overlay audio)
-        processed_video_path = process_video(local_video_path)
-        print(processed_video_path)
+        print("getting audio")
+        audio_url = get_music(input_video_path)
+        temp_audio_path = get_audio_file(audio_url)
+
+        if not temp_audio_path:
+            raise Exception("Failed to download audio file")
         
-        # Serve the processed video to the client
+        print("overlay audio")
+        # Overlay audio onto video
+        processed_video_path = audio_overlay(input_video_path, temp_audio_path)
+        
+        # Upload processed video back to S3
         processed_filename = f"processed_{filename}"
+
+        print("upload overlaid video to s3")
+
         s3.upload_file(processed_video_path, S3_BUCKET, processed_filename)
 
-        return jsonify({'status' : 'success'})
+    except:
+        return jsonify({'status' : 'failure', 'message' : 'Unable to save overlay to S3'}), 500
+    
+    return jsonify({'status' : 'success'})
 
-    except Exception as e:
-        return jsonify({'status': 'failure', 'message': str(e)}), 500
+    # try:
+    #     # Download video from S3 to local storage
+    #     local_video_path = download_from_s3(filename)
+    #     print("local path: ",local_video_path)
+        
+    #     # Process the video (e.g., overlay audio)
+    #     processed_video_path = process_video(local_video_path)
+    #     print(processed_video_path)
+        
+    #     # Serve the processed video to the client
+    #     processed_filename = f"processed_{filename}"
+    #     s3.upload_file(processed_video_path, S3_BUCKET, processed_filename)
 
-def download_from_s3(filename):
-    s3 = boto3.client('s3')
-    print(filename)
-    local_path = f"{TEMP_DIR}/{filename}"
-    s3.download_file(S3_BUCKET,filename, local_path)
-    return local_path
+    #     return jsonify({'status' : 'success'})
 
-def process_video(video_path):
-    audio_url = get_music(video_path)
-    temp_aud_path = get_audio_file(audio_url, TEMP_DIR)
+    # except Exception as e:
+    #     return jsonify({'status': 'failure', 'message': str(e)}), 500
 
-    return temp_aud_path  
+# def download_from_s3(filename):
+#     s3 = boto3.client('s3')
+#     print(filename)
+#     local_path = f"{TEMP_DIR}/{filename}"
+#     s3.download_file(S3_BUCKET,filename, local_path)
+#     return local_path
+
+# def process_video(video_path):
+#     audio_url = get_music(video_path)
+#     temp_aud_path = get_audio_file(audio_url, TEMP_DIR)
+
+#     return temp_aud_path  
 
     # try:
     #     # Download video from S3 to a temporary file

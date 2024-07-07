@@ -4,41 +4,41 @@ import tempfile
 from sunoai_helper import *
 from chatgpt_helper import get_vid_desc
 
-# def get_audio_file(audio_url):
-#     try:
-#         response = requests.get(audio_url, stream=True)
-#         response.raise_for_status()
-
-#         # Store the audio file in a temporary file
-#         temp_audio_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
-#         for chunk in response.iter_content(chunk_size=8192):
-#             temp_audio_file.write(chunk)
-#         # temp_audio_file.close()
-
-#         return temp_audio_file.name
-#     except Exception as e:
-#         print(f"Error downloading audio file: {e}")
-#         return None
-
-def get_audio_file(audio_url, save_dir):
+def get_audio_file(audio_url):
     try:
         response = requests.get(audio_url, stream=True)
         response.raise_for_status()
 
-        # Extract filename from URL or use a predefined name
-        filename = f"{save_dir}/audio.mp3"
+        # Store the audio file in a temporary file
+        temp_audio_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
+        for chunk in response.iter_content(chunk_size=8192):
+            temp_audio_file.write(chunk)
+        # temp_audio_file.close()
 
-        # Write audio content to a local file
-        with open(filename, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-
-        return filename
-
+        return temp_audio_file.name
     except Exception as e:
         print(f"Error downloading audio file: {e}")
         return None
+
+# def get_audio_file(audio_url, save_dir):
+#     try:
+#         response = requests.get(audio_url, stream=True)
+#         response.raise_for_status()
+
+#         # Extract filename from URL or use a predefined name
+#         filename = f"{save_dir}/audio.mp3"
+
+#         # Write audio content to a local file
+#         with open(filename, 'wb') as f:
+#             for chunk in response.iter_content(chunk_size=8192):
+#                 if chunk:
+#                     f.write(chunk)
+
+#         return filename
+
+#     except Exception as e:
+#         print(f"Error downloading audio file: {e}")
+#         return None
 
 
 def get_music(vid_path):
