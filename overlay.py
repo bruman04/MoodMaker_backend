@@ -19,6 +19,7 @@ def audio_overlay(video, audio):
 
     finalVid = rawVideo.set_audio(newAudio)
 
+    
     #temp file for storing output vid
     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as output_video_file:
         output_video_path = output_video_file.name

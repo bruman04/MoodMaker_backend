@@ -5,6 +5,7 @@ from sunoai_helper import *
 from chatgpt_helper import get_vid_desc
 
 def get_audio_file(audio_url):
+    print("downloading audio")
     try:
         response = requests.get(audio_url, stream=True)
         response.raise_for_status()
@@ -16,7 +17,7 @@ def get_audio_file(audio_url):
 
             for chunk in response.iter_content(chunk_size=4092):
                 temp_audio_file.write(chunk)
-        # temp_audio_file.close()
+
         print("temp_aud ", temp_audio_file)
 
         return temp_audio_file.name
@@ -24,36 +25,17 @@ def get_audio_file(audio_url):
         print(f"Error downloading audio file: {e}")
         return None
 
-# def get_audio_file(audio_url, save_dir):
-#     try:
-#         response = requests.get(audio_url, stream=True)
-#         response.raise_for_status()
 
-#         # Extract filename from URL or use a predefined name
-#         filename = f"{save_dir}/audio.mp3"
-
-#         # Write audio content to a local file
-#         with open(filename, 'wb') as f:
-#             for chunk in response.iter_content(chunk_size=8192):
-#                 if chunk:
-#                     f.write(chunk)
-
-#         return filename
-
-#     except Exception as e:
-#         print(f"Error downloading audio file: {e}")
-#         return None
-
-
-def get_music(vid_path):
-    print("get music")
+def get_music(vid_data):
+    print("generate audio")
 
     data = generate_audio_by_prompt({
-    "prompt": get_vid_desc(vid_path),
+    "prompt": get_vid_desc(vid_data),
     "make_instrumental": True,
     "wait_audio": True
     })
     
+    print(data.message)
     ids = f"{data[0]['id']},{data[1]['id']}"
     print(f"ids: {ids}")
 

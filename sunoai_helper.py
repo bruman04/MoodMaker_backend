@@ -1,6 +1,7 @@
 import time
 import requests
 from requests.exceptions import RequestException
+from flask import jsonify
 
 # replace your domain
 base_url = 'https://remote-suno-ai-bd09b2fad4de.herokuapp.com'
@@ -25,7 +26,7 @@ def generate_audio_by_prompt(payload):
         return response.json()
     except RequestException as e:
         print(f"Request error for {url}: {e}")
-        return None
+        return jsonify({'status' : 'failure', 'message' : 'out of credits'})
     except Exception as e:
         print(f"Error for {url}: {e}")
         return None
@@ -52,23 +53,3 @@ def generate_whole_song(clip_id):
     url = f"{base_url}/api/concat"
     response = requests.post(url, json=payload)
     return response.json()
-
-
-# if __name__ == '__main__':
-#     data = generate_audio_by_prompt({
-#         "prompt": "A popular heavy metal song about war, sung by a deep-voiced male singer, slowly and melodiously. The lyrics depict the sorrow of people after the war.",
-#         "make_instrumental": True,
-#         "wait_audio": True
-#     })
-
-#     ids = f"{data[0]['id']},{data[1]['id']}"
-#     print(f"ids: {ids}")
-
-#     for _ in range(60):
-#         data = get_audio_information(ids)
-#         if data[0]["status"] == 'streaming':
-#             print(f"{data[0]['id']} ==> {data[0]['audio_url']}")
-#             print(f"{data[1]['id']} ==> {data[1]['audio_url']}")
-#             break
-#         # sleep 5s
-#         time.sleep(5)

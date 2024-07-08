@@ -9,11 +9,11 @@ Pipfile.*
 #video files
 *.mp4
 
-# #api keys
+#secrets
 .env
+/config.py
 
 #test
 /testVideoAudio
 /test_data
 
-config.py
