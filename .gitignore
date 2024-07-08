@@ -10,7 +10,7 @@ Pipfile.*
 *.mp4
 
 # #api keys
-/.env
+.env
 
 #test
 /testVideoAudio
