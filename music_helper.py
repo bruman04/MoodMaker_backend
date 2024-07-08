@@ -11,9 +11,13 @@ def get_audio_file(audio_url):
 
         # Store the audio file in a temporary file
         temp_audio_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
-        for chunk in response.iter_content(chunk_size=8192):
-            temp_audio_file.write(chunk)
+        response = requests.get(audio_url, stream=True)
+        if response.status_code == 200:
+
+            for chunk in response.iter_content(chunk_size=4092):
+                temp_audio_file.write(chunk)
         # temp_audio_file.close()
+        print("temp_aud ", temp_audio_file)
 
         return temp_audio_file.name
     except Exception as e:
