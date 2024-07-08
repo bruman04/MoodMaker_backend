@@ -1,7 +1,5 @@
 /__pycache__
 
-config.py
-
 # virtual env
 /.venv
 Pipfile
@@ -17,3 +15,5 @@ Pipfile.*
 #test
 /testVideoAudio
 /test_data
+
+config.py
