@@ -19,11 +19,24 @@ pip install -r requirements.txt
 ```
 ## Create a .env file
 ```sh
-FLASK_APP=app.py
-FLASK_ENV=development
-AWS_ACCESS_KEY_ID=your-aws-access-key-id
-AWS_SECRET_ACCESS_KEY=your-aws-secret-access-key
-S3_BUCKET=your-s3-bucket-name
+OPENAI_API_KEY="YOUR OPENAI API KEY"
+SESSION_SECRET_KEY="YOUR SESSION SECRET KEY"
+
+```
+
+## Create a .config file
+```sh
+import os
+
+DB_USERNAME = os.getenv('DB_USERNAME', '')
+DB_PASSWORD = os.getenv('DB_PASSWORD', '')
+DB_HOST = os.getenv('DB_HOST', '')
+DB_PORT = os.getenv('DB_PORT', '')
+DB_NAME = os.getenv('DB_NAME', '')
+
+SQLALCHEMY_DATABASE_URI = f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+SQLALCHEMY_TRACK_MODIFICATIONS = False
+
 ```
 
 ## Run the app locally 
